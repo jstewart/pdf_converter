@@ -1,0 +1,67 @@
+PdfConverter
+============
+
+PdfConverter makes converting PDF files to image formats simple. It supports different backend processors (currently ImageMagick and netpbm). Netpbm support is a 2 step process but it's faster than ImageMagick.
+
+PdfConverter works on attachment based models. It was designed to work with attachment_fu, but it can be used with any model that has a method that returns the full path to the PDF file. See the examples below. 
+
+Options can be passed to the command line of the backend processors. For ImageMagick, a string can be passed in as a hash value to :processor_options. For netpbm, an array of 2 strings must be passed in, since it's a 2 step process. The first element of the array will be used for pdftoppm then the 2nd will be passed into the pnmto<format> stage.
+
+
+PdfConverter supports any image format that the backend processor supports. Simply call convert_to_<format> on an instance of your model. 
+
+Setup the model:
+class DummyFile < ActiveRecord::Base
+  has_attachment :storage => :file_system
+  converts_pdf
+end
+
+To convert the pdf file to some other format:
+d = DummyFile.find(:first)
+d.convert_to_png
+d.convert_to_jpeg
+
+Software Requirements
+=====================
+
+Your software requirements depends on which backend processor that you choose to use. For imagemagick, ImageMagick must be installed and the 'convert' binary must be in your path. For netpbm, Xpdf and netpbm must be installed (pdftoppm and pnmto<format> must exist in your path).
+
+Examples
+========
+
+To use the plugin with the default imagemagick processor and attachment_fu, just add converts_pdf to the model class: 
+
+class DummyFile < ActiveRecord::Base
+  has_attachment :storage => :file_system
+  converts_pdf
+end
+
+Not using attachment_fu? You can specify the method used to retrieve the full path to the PDF filename to convert:
+class DummyFile < ActiveRecord::Base
+  converts_pdf :filename_method => :your_method_to_get_full_path_to_file
+end
+
+With a different backend processor:
+class DummyFile < ActiveRecord::Base
+  has_attachment :storage => :file_system
+  converts_pdf :processor => 'netpbm'
+end
+
+
+Passing in command line options to the backend processor:
+class DummyFile < ActiveRecord::Base
+  has_attachment :storage => :file_system
+  converts_pdf :processor_options => '-density 150'
+end
+
+Advanced Examples
+=================
+
+Passing in command line options to the backend processor (for 2 step processors like netpbm):
+(The first element of the array is passed to pdfto)
+class DummyFile < ActiveRecord::Base
+  has_attachment :storage => :file_system
+  converts_pdf :processor => 'netpbm', :processor_options => ['-q', '-v']
+end
+
+Copyright (c) 2008 Jason Stewart, released under the MIT license
