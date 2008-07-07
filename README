@@ -58,7 +58,7 @@ Advanced Examples
 =================
 
 Passing in command line options to the backend processor (for 2 step processors like netpbm):
-(The first element of the array is passed to pdfto)
+(The first element of the array is passed to pdftoppm)
 class DummyFile < ActiveRecord::Base
   has_attachment :storage => :file_system
   converts_pdf :processor => 'netpbm', :processor_options => ['-q', '-v']
